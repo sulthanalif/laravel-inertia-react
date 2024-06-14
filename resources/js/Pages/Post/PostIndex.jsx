@@ -1,21 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, usePage, Link, useForm } from "@inertiajs/react";
+import { Head, usePage, Link } from "@inertiajs/react";
 import PrimaryButton from "@/Components/PrimaryButton";
 import DangerButton from "@/Components/DangerButton";
+import Pagination from "@/Components/Pagination";
+import PopupDelete from "@/Components/PopupDelete";
 
 function PostIndex({ auth, posts }) {
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [id, setId] = useState(0);
     const { flash } = usePage().props;
-    //   console.log(flash.message);
 
-    const { data, setData, delete: destroy } = useForm();
-
-    const deletePost = (e) => {
-        if (confirm("Are you sure you want to delete this post?")) {
-            e.preventDefault();
-
-            destroy(route("posts.destroy"));
-        }
+    const handleShowConfirmation = (id) => {
+        setShowConfirm(true);
+        setId(id);
+        // console.log(id);
     };
 
     return (
@@ -38,6 +37,13 @@ function PostIndex({ auth, posts }) {
                     }}
                 >
                     {flash.message}
+
+                    {setTimeout(() => {
+                        const messageElement =
+                            document.querySelector(".flash-message");
+                        messageElement.remove();
+                    }, 5000)}
+
                     <button
                         className="float-right text-white"
                         onClick={() => {
@@ -46,12 +52,6 @@ function PostIndex({ auth, posts }) {
                             messageElement.style.opacity = 0;
                         }}
                     ></button>
-
-                    {setTimeout(() => {
-                        const messageElement =
-                            document.querySelector(".flash-message");
-                        messageElement.remove();
-                    }, 5000)}
                 </div>
             )}
 
@@ -85,7 +85,7 @@ function PostIndex({ auth, posts }) {
                     <PrimaryButton>Create</PrimaryButton>
                 </Link>
             </div>
-            <div className="py-12">
+            <div className="py-6">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
@@ -95,53 +95,100 @@ function PostIndex({ auth, posts }) {
                                         <th
                                             scope="col"
                                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                        ></th>
+                                        <th
+                                            scope="col"
+                                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                         >
                                             Title
                                         </th>
                                         <th
                                             scope="col"
+                                            colSpan={2}
                                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                         >
                                             Description
                                         </th>
-                                        <th
-                                            scope="col"
-                                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                        >
-                                            Action
-                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
-                                    {posts.data.map((post) => (
-                                        <tr key={post.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {post.title}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {post.description}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <form onSubmit={deletePost}>
-                                                    <input
-                                                        type="hidden"
-                                                        value={post.id}
-                                                        onChange={(e) =>
-                                                            setData(
-                                                                "id",
-                                                                e.target.value
+                                    {!posts ? (
+                                        <tr>
+                                            <td colSpan={4}>No data found!</td>
+                                        </tr>
+                                    ) : (
+                                        posts.data.map((post, index) => (
+                                            <tr key={post.id}>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    {index + 1}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    {post.title.length > 25 ? (
+                                                        <Link
+                                                            href={route(
+                                                                "posts.show",
+                                                                post.slug
+                                                            )}
+                                                            className="text-gray-600 hover:text-gray-900"
+                                                        >
+                                                            {post.title.substring(
+                                                                0,
+                                                                20
+                                                            ) + "..."}
+                                                        </Link>
+                                                    ) : (
+                                                        <Link
+                                                            href={route(
+                                                                "posts.show",
+                                                                post.slug
+                                                            )}
+                                                            className="text-gray-600 hover:text-gray-900"
+                                                        >
+                                                            {post.title}
+                                                        </Link>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    {post.description}
+                                                </td>
+                                                <td className="flex justify-end px-6 py-4 whitespace-nowrap">
+                                                    <PrimaryButton className="mr-2">
+                                                        <Link
+                                                            href={route(
+                                                                "posts.edit",
+                                                                post.slug
+                                                            )}
+                                                        >
+                                                            Edit
+                                                        </Link>
+                                                    </PrimaryButton>
+                                                    <DangerButton
+                                                        onClick={() =>
+                                                            handleShowConfirmation(
+                                                                post.id
                                                             )
                                                         }
-                                                    />
-                                                    <DangerButton type="submit">
+                                                    >
                                                         Delete
                                                     </DangerButton>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                    {showConfirm && (
+                                                        <PopupDelete
+                                                            id={id}
+                                                            setShowConfirm={
+                                                                setShowConfirm
+                                                            }
+                                                        />
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
                                 </tbody>
                             </table>
+
+                            <div className="flex items-center justify-center mt-4 mb-4">
+                                <Pagination links={posts.links} />
+                            </div>
                         </div>
                     </div>
                 </div>

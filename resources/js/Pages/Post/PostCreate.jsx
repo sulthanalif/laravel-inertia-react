@@ -30,7 +30,7 @@ function PostCreate({ auth }) {
     }, []);
 
     const submit = (e) => {
-        // console.log(data);
+        // console.asd(data);
         e.preventDefault();
         post(route("posts.store"));
     };
@@ -169,14 +169,16 @@ function PostCreate({ auth }) {
                                     className="mt-2"
                                 />
                             </div>
+                            <div className="pt-4 flex justify-end">
                             <PrimaryButton className="" disabled={processing}>
                                 Submit
                             </PrimaryButton>
-                            <Link href={route("posts.index")} className="ms-6">
+                            <Link href={route("posts.index")} className="ms-4">
                                 <DangerButton className="">
                                     Back
                                 </DangerButton>
                             </Link>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -188,12 +190,13 @@ function PostCreate({ auth }) {
 export default PostCreate;
 
 function slugify(text) {
-    return text
+    const slug = text
         .toString()
         .toLowerCase()
+        .trim()
         .replace(/\s+/g, "-")
         .replace(/[^\w-]+/g, "")
-        .replace(/--+/g, "-")
-        .replace(/^-+/, "")
-        .replace(/-+$/, "");
+        .replace(/--+/g, "-");
+
+    return slug;
 }

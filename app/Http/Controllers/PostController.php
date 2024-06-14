@@ -13,13 +13,21 @@ class PostController extends Controller
     public function index()
     {
         return Inertia::render('Post/PostIndex', [
-            'posts' => Post::paginate(5),
+            'posts' => Post::where('user_id', auth()->user()->id)->latest()->paginate(5),
         ]);
     }
 
     public function create()
     {
         return Inertia::render('Post/PostCreate');
+    }
+
+    public function show($slug)
+    {
+        $post = Post::where('slug', $slug);
+        return Inertia::render('Post/PostShow', [
+            'post' => $post->with('user')->first(),
+        ]);
     }
 
     public function store(Request $request)
@@ -43,6 +51,39 @@ class PostController extends Controller
                 ]);
             });
             return redirect()->route('posts.index')->with('message', 'Post created successfully');
+        } catch (\Exception $e) {
+            return back()->with('errors', $e->getMessage());
+        }
+    }
+
+    public function edit($slug)
+    {
+        $post = Post::where('slug', $slug)->where('user_id', auth()->user()->id)->first();
+        return Inertia::render('Post/PostEdit', [
+            'post' => $post
+        ]);
+    }
+
+    public function update(Request $request, $slug)
+    {
+        $request->validate([
+            'title' => 'required',
+            'slug' => 'required|unique:posts,slug,',
+            'body' => 'required',
+            'description' => 'required',
+        ]);
+
+        try {
+            DB::transaction(function () use ($request, $slug) {
+                $post = Post::where('slug', $slug)->where('user_id', auth()->user()->id)->first();
+                $post->update([
+                    'title' => $request->title,
+                    'body' => $request->body,
+                    'description' => $request->description,
+                    'slug' => $request->slug
+                ]);
+            });
+            return redirect()->route('posts.index')->with('message', 'Post updated successfully');
         } catch (\Exception $e) {
             return back()->with('errors', $e->getMessage());
         }
