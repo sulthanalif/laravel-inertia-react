@@ -2,6 +2,7 @@ import React from "react";
 import PrimaryButton from "./PrimaryButton";
 import DangerButton from "./DangerButton";
 import { router } from "@inertiajs/react";
+import toast from "react-hot-toast";
 
 const PopupDelete = ({ setShowConfirm, id }) => {
     
@@ -9,7 +10,8 @@ const PopupDelete = ({ setShowConfirm, id }) => {
         router.post(route("posts.destroy", id), {
             _method: "DELETE",
         }, {
-            onSuccess: () => setShowConfirm(false),
+            onSuccess: () => [setShowConfirm(false), toast.success("Post deleted successfully")],   
+
         })
     }
 

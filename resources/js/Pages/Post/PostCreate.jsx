@@ -34,6 +34,7 @@ function PostCreate({ auth }) {
         e.preventDefault();
         post(route("posts.store"));
     };
+    
 
     return (
         <AuthenticatedLayout
