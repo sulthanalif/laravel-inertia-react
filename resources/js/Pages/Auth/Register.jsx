@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
+import  ReCAPTCHA  from 'react-google-recaptcha';
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -14,6 +15,8 @@ export default function Register() {
         password_confirmation: '',
     });
 
+    const [captVal, setCaptVal] = useState('');
+
     useEffect(() => {
         return () => {
             reset('password', 'password_confirmation');
@@ -22,7 +25,7 @@ export default function Register() {
 
     const submit = (e) => {
         e.preventDefault();
-
+        // console.log(captVal);
         post(route('register'));
     };
 
@@ -99,6 +102,13 @@ export default function Register() {
                     <InputError message={errors.password_confirmation} className="mt-2" />
                 </div>
 
+                <div className="mt-4">
+                    <ReCAPTCHA
+                        sitekey="6Lc56PYpAAAAAGuILkfQ1JbPloYJC0d1HqkcGjws"
+                        onChange={(value) => setCaptVal(value)}
+                    />
+                </div>
+
                 <div className="flex items-center justify-end mt-4">
                     <Link
                         href={route('login')}
@@ -107,7 +117,7 @@ export default function Register() {
                         Already registered?
                     </Link>
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
+                    <PrimaryButton className="ms-4" disabled={!captVal || processing}>
                         Register
                     </PrimaryButton>
                 </div>
