@@ -5,26 +5,34 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import DangerButton from "@/Components/DangerButton";
 import Pagination from "@/Components/Pagination";
 import PopupDelete from "@/Components/PopupDelete";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
+import TextInput from "@/Components/TextInput";
 
 function PostIndex({ auth, posts }) {
     const [showConfirm, setShowConfirm] = useState(false);
 
     const [id, setId] = useState(0);
+    const [r, setR] = useState("");
     const { flash } = usePage().props;
+   
 
     const handleShowConfirmation = (id) => {
         setShowConfirm(true);
         setId(id);
+        setR("posts");
         // console.log(id);
     };
 
-    
     useEffect(() => {
-        flash.message && toast.success(flash.message);
+        flash.message &&
+            toast.success(flash.message, {
+                style: {
+                    borderRadius: "10px",
+                    background: "#333",
+                    color: "#fff",
+                },
+            });
     }, []);
-
-   
 
     return (
         <AuthenticatedLayout
@@ -37,7 +45,7 @@ function PostIndex({ auth, posts }) {
         >
             <Head title="Posts" />
 
-            <div className="py-6">
+            <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
@@ -46,26 +54,41 @@ function PostIndex({ auth, posts }) {
                                     <tr>
                                         <th
                                             scope="col"
-                                            className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                            className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                         ></th>
                                         <th
                                             scope="col"
-                                            className="px-12 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-bold"
+                                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-bold"
                                         >
                                             Title
                                         </th>
                                         <th
                                             scope="col"
                                             // colSpan={2}
-                                            className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-bold"
+                                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-bold"
                                         >
                                             Description
+                                        </th>
+                                        <th
+                                            scope="col"
+                                            // colSpan={2}
+                                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-bold"
+                                        >
+                                            Writer
                                         </th>
 
                                         <th
                                             scope="col"
                                             className="px-6 py-3 text-right"
                                         >
+                                            <TextInput
+                                                className="me-2 h-8"
+                                                type="text"
+                                                name="search"
+                                                id="search"
+                                                placeholder="Search..."
+                                               
+                                            />
                                             <Link href={route("posts.create")}>
                                                 <PrimaryButton className="float-right">
                                                     Create
@@ -78,7 +101,7 @@ function PostIndex({ auth, posts }) {
                                     {posts && posts.data.length === 0 ? (
                                         <tr>
                                             <td
-                                                colSpan={4}
+                                                colSpan={5}
                                                 className="text-center py-4 text-gray-600 font-bold text-lg"
                                             >
                                                 No data found!
@@ -90,10 +113,10 @@ function PostIndex({ auth, posts }) {
                                                 key={post.id}
                                                 className="border-t border-b border-gray-200 first:border-t last:border-b hover:bg-gray-100"
                                             >
-                                                <td className="px-4 py-4 whitespace-nowrap">
+                                                <td className="px-6 py-4 whitespace-nowrap text-center">
                                                     {index + 1}
                                                 </td>
-                                                <td className="px-12 py-4 whitespace-nowrap">
+                                                <td className="px-6 py-4 whitespace-nowrap">
                                                     {post.title.length > 25 ? (
                                                         <Link
                                                             href={route(
@@ -119,8 +142,17 @@ function PostIndex({ auth, posts }) {
                                                         </Link>
                                                     )}
                                                 </td>
-                                                <td className="px-4 py-4 whitespace-nowrap">
-                                                    {post.description}
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    {post.description.length >
+                                                    25
+                                                        ? post.description.substring(
+                                                              0,
+                                                              20
+                                                          ) + "..."
+                                                        : post.title}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    {post.user.name}
                                                 </td>
                                                 <td className="flex justify-end px-6 py-4 whitespace-nowrap">
                                                     <PrimaryButton className="mr-2">
@@ -148,6 +180,7 @@ function PostIndex({ auth, posts }) {
                                                             setShowConfirm={
                                                                 setShowConfirm
                                                             }
+                                                            r={r}
                                                         />
                                                     )}
                                                 </td>

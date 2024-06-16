@@ -13,11 +13,22 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
+        $admin = User::create([
             'name' => 'Sulthan',
             'email' => 'sulthan.dev@gmail.com',
             'password' => 'password',
         ]);
-        User::factory(10)->create();
+        $admin->assignRole('admin');
+
+        $writers = User::factory(5)->create();
+        foreach ($writers as $writer) {
+            $writer->assignRole('writer');
+        }
+
+        $editors = User::factory(5)->create();
+        foreach ($editors as $editor) {
+            $editor->assignRole('editor');
+        }
+
     }
 }

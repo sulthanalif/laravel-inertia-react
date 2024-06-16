@@ -12,9 +12,15 @@ class PostController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Post/PostIndex', [
-            'posts' => Post::where('user_id', auth()->user()->id)->latest()->paginate(5),
-        ]);
+        if (auth()->user()->roles->first()->name == 'admin' || auth()->user()->roles->first()->name == 'editor') {
+            return Inertia::render('Post/PostIndex', [
+                'posts' => Post::with('user')->latest()->paginate(5),
+            ]);
+        } else if (auth()->user()->roles->first()->name == 'writer') {
+            return Inertia::render('Post/PostIndex', [
+                'posts' => Post::where('user_id', auth()->user()->id)->with('user')->latest()->paginate(5),
+            ]);
+        }
     }
 
     public function create()
